@@ -1,0 +1,7 @@
+name: SeasonalLods
+version: '1.0-SNAPSHOT'
+main: io.github.m3t4f1v3.SeasonalLods
+api-version: '1.21.8'
+authors: [ m3t4f1v3 ]
+description: Sends the necessary info to the client side mod
+depend: ['RealisticSeasons']
