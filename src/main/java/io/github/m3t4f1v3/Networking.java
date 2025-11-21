@@ -13,7 +13,7 @@ import xyz.bluspring.modernnetworking.bukkit.api.BukkitNetworkRegistry;
 
 public class Networking {
     private static final BukkitNetworkRegistry NETWORK_REGISTRY = new BukkitNetworkRegistry(
-            JavaPlugin.getPlugin(SeasonalLods.class), "voxy");
+            JavaPlugin.getPlugin(SeasonalLods.class), "seasonallods");
     
     public static final PacketDefinition<SeasonPacket, ByteBuf> SEASON_PACKET = NETWORK_REGISTRY.registerClientbound("sync_season", SeasonPacket.CODEC);
 
