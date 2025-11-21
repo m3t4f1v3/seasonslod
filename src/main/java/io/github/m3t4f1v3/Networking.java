@@ -14,6 +14,7 @@ import xyz.bluspring.modernnetworking.bukkit.api.BukkitNetworkRegistry;
 public class Networking {
     private static final BukkitNetworkRegistry NETWORK_REGISTRY = new BukkitNetworkRegistry(
             JavaPlugin.getPlugin(SeasonalLods.class), "voxy");
+    
     public static final PacketDefinition<SeasonPacket, ByteBuf> SEASON_PACKET = NETWORK_REGISTRY.registerClientbound("sync_season", SeasonPacket.CODEC);
 
     public record SeasonPacket(String season) implements NetworkPacket {
@@ -24,6 +25,19 @@ public class Networking {
         @Override
         public PacketDefinition<? extends NetworkPacket, ? extends ByteBuf> getDefinition() {
             return SEASON_PACKET;
+        }
+    }
+
+    public static final PacketDefinition<SubSeasonPacket, ByteBuf> SUBSEASON_PACKET = NETWORK_REGISTRY.registerClientbound("sync_subseason", SubSeasonPacket.CODEC);
+
+    public record SubSeasonPacket(int subSeason) implements NetworkPacket {
+        public static final NetworkCodec<SubSeasonPacket, ByteBuf> CODEC = CompositeCodecs.composite(
+                NetworkCodecs.INT, SubSeasonPacket::subSeason,
+                SubSeasonPacket::new);
+
+        @Override
+        public PacketDefinition<? extends NetworkPacket, ? extends ByteBuf> getDefinition() {
+            return SUBSEASON_PACKET;
         }
     }
 

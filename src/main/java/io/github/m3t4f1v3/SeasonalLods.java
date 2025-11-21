@@ -94,8 +94,8 @@ public final class SeasonalLods extends JavaPlugin implements Listener {
                     .create();
                 String jsonOutput = gson.toJson(biomeMap);
 
-                SeasonalLods.pluginLogger.info("Generated Biome Replacement JSON:");
-                SeasonalLods.pluginLogger.info(jsonOutput);
+                SeasonalLods.pluginLogger.info("Generated Biome Replacement JSON");
+                // SeasonalLods.pluginLogger.info(jsonOutput);
                 biomeJson = jsonOutput;
             }
         });
