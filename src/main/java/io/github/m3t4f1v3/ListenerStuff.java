@@ -22,21 +22,27 @@ public class ListenerStuff implements Listener {
     public void onPlayerJoin(PlayerRegisterChannelEvent event) {
         Player player = event.getPlayer();
         World world = player.getWorld();
-        if (RealisticSeasons.getInstance().getSettings().subSeasonsEnabled) {
-            SubSeason subSeason = RealisticSeasons.getInstance().getTimeManager().getCorrectSubSeason(world);
-            BukkitNetworkSender.sendPacketServer(player, new Networking.SubSeasonPacket(subSeason.getPhase()));
-        }
         Season season = SeasonsAPI.getInstance().getSeason(world);
-        BukkitNetworkSender.sendPacketServer(player, new Networking.SeasonPacket(season.name()));
         BukkitNetworkSender.sendPacketServer(player, new Networking.BiomePacket(SeasonalLods.biomeJson));
+        BukkitNetworkSender.sendPacketServer(player, new Networking.SeasonPacket(season.name()));
+        if (RealisticSeasons.getInstance().getSettings().subSeasonsEnabled) {
+            currentSubSeason = RealisticSeasons.getInstance().getTimeManager().getCorrectSubSeason(world);
+            BukkitNetworkSender.sendPacketServer(player, new Networking.SubSeasonPacket(currentSubSeason.getPhase()));
+        }
+        // BukkitNetworkSender.sendPacketServer(player, new Networking.ReloadPacket());
     }
 
     @EventHandler
     public void onSeasonChange(SeasonChangeEvent e) {
         Season season = e.getNewSeason();
-        World w = e.getWorld();
-        for (Player player : w.getPlayers()) {
+        World world = e.getWorld();
+        for (Player player : world.getPlayers()) {
             BukkitNetworkSender.sendPacketServer(player, new Networking.SeasonPacket(season.name()));
+            if (RealisticSeasons.getInstance().getSettings().subSeasonsEnabled) {
+                currentSubSeason = RealisticSeasons.getInstance().getTimeManager().getCorrectSubSeason(world);
+                BukkitNetworkSender.sendPacketServer(player, new Networking.SubSeasonPacket(currentSubSeason.getPhase()));
+            }
+            BukkitNetworkSender.sendPacketServer(player, new Networking.ReloadPacket());
         }
     }
 
@@ -48,6 +54,7 @@ public class ListenerStuff implements Listener {
                 currentSubSeason = RealisticSeasons.getInstance().getTimeManager().getCorrectSubSeason(e.getWorld());
                 for (Player player : e.getWorld().getPlayers()) {
                     BukkitNetworkSender.sendPacketServer(player, new Networking.SubSeasonPacket(currentSubSeason.getPhase()));
+                    BukkitNetworkSender.sendPacketServer(player, new Networking.ReloadPacket());
                 }
             }
         }

@@ -21,6 +21,7 @@ import me.casperge.interfaces.NmsCode;
 import me.casperge.realisticseasons.RealisticSeasons;
 import me.casperge.realisticseasons.api.SeasonsAPI;
 import me.casperge.realisticseasons.biome.BiomeRegister;
+import me.casperge.realisticseasons.commands.ToggleSeasonsCommand;
 import me.casperge.realisticseasons.season.SubSeason;
 
 public final class SeasonalLods extends JavaPlugin implements Listener {
@@ -98,6 +99,9 @@ public final class SeasonalLods extends JavaPlugin implements Listener {
                 // SeasonalLods.pluginLogger.info(jsonOutput);
                 biomeJson = jsonOutput;
             }
+        });
+        Networking.NETWORK_REGISTRY.addServerboundHandler(Networking.DISCOVER_PACKET, (packet, player) -> {
+            if (!ToggleSeasonsCommand.disabled.contains(player.getPlayer().getUniqueId())) ToggleSeasonsCommand.disabled.add(player.getPlayer().getUniqueId());
         });
     }
 

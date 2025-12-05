@@ -12,7 +12,7 @@ import xyz.bluspring.modernnetworking.api.PacketDefinition;
 import xyz.bluspring.modernnetworking.bukkit.api.BukkitNetworkRegistry;
 
 public class Networking {
-    private static final BukkitNetworkRegistry NETWORK_REGISTRY = new BukkitNetworkRegistry(
+    public static final BukkitNetworkRegistry NETWORK_REGISTRY = new BukkitNetworkRegistry(
             JavaPlugin.getPlugin(SeasonalLods.class), "seasonallods");
     
     public static final PacketDefinition<SeasonPacket, ByteBuf> SEASON_PACKET = NETWORK_REGISTRY.registerClientbound("sync_season", SeasonPacket.CODEC);
@@ -51,6 +51,29 @@ public class Networking {
         @Override
         public PacketDefinition<? extends NetworkPacket, ? extends ByteBuf> getDefinition() {
             return BIOME_PACKET;
+        }
+    }
+
+    public static final PacketDefinition<ReloadPacket, ByteBuf> RELOAD_RENDERER_PACKET = NETWORK_REGISTRY.registerClientbound("reload_renderer", ReloadPacket.CODEC);
+
+    public record ReloadPacket() implements NetworkPacket {
+        public static final NetworkCodec<ReloadPacket, ByteBuf> CODEC = NetworkCodecs.unit(new ReloadPacket());
+
+        @Override
+        public PacketDefinition<? extends NetworkPacket, ? extends ByteBuf> getDefinition() {
+            return RELOAD_RENDERER_PACKET;
+        }
+    }
+
+    public static final PacketDefinition<DiscoverPacket, ByteBuf> DISCOVER_PACKET = NETWORK_REGISTRY
+            .registerServerbound("discover_packet", DiscoverPacket.CODEC);
+
+    public record DiscoverPacket() implements NetworkPacket {
+        public static final NetworkCodec<DiscoverPacket, ByteBuf> CODEC = NetworkCodecs.unit(new DiscoverPacket());
+
+        @Override
+        public PacketDefinition<? extends NetworkPacket, ? extends ByteBuf> getDefinition() {
+            return DISCOVER_PACKET;
         }
     }
 }

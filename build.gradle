@@ -21,7 +21,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
     compileOnly(files("libs/RealisticSeasons-11.9.2.jar"))
-    implementation("xyz.bluspring.modernnetworking:modernnetworking-api:1.2.2")
+    implementation("xyz.bluspring.modernnetworking:modernnetworking-api:$modernNetworkingVersion")
     implementation("xyz.bluspring.modernnetworking:modernnetworking-bukkit:$modernNetworkingVersion")
     compileOnly("io.netty:netty-buffer:4.1.97.Final")
     compileOnly("io.netty:netty-codec:4.1.97.Final")
