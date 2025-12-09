@@ -49,7 +49,6 @@ public final class SeasonalLods extends JavaPlugin implements Listener {
                     int biomeId = nms.getBiomeID(biome);
                     BiomeReplacement br = new BiomeReplacement();
 
-                    // Values may be either a single String or a List<String>, so use Object and cast when needed
                     Seasons seasons = new Seasons();
                     int winterId = BiomeRegister.getWinterReplacement(biomeId);
                     int summerId = BiomeRegister.getSummerReplacement(biomeId);

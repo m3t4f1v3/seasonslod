@@ -1,16 +1,17 @@
 package io.github.m3t4f1v3;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
-import com.destroystokyo.paper.event.server.ServerTickStartEvent;
-
 import me.casperge.realisticseasons.RealisticSeasons;
+import me.casperge.realisticseasons.api.SeasonChangeEvent;
 import me.casperge.realisticseasons.api.SeasonsAPI;
 import me.casperge.realisticseasons.calendar.Date;
+import me.casperge.realisticseasons.calendar.DayChangeEvent;
 import me.casperge.realisticseasons.season.Season;
 import me.casperge.realisticseasons.season.SubSeason;
 import xyz.bluspring.modernnetworking.bukkit.api.BukkitNetworkSender;
@@ -20,20 +21,20 @@ public class ListenerStuff implements Listener {
     private Season currentSeason = null;
     private int currentSubSeasonPhase = -1;
 
-
-    private void sendData(Player player) {
-        String seasonName = currentSeason.name();
-        BukkitNetworkSender.sendPacketServer(player, new Networking.SeasonPacket(SeasonalLods.biomeJson, seasonName, currentSubSeasonPhase, RealisticSeasons.getInstance().getSettings().subSeasonsEnabled));
-        // BukkitNetworkSender.sendPacketServer(player, new Networking.ReloadPacket()); 
-    }
-
-    private void updateDataThenSend(Player player, boolean override) {
+    private void updateDataThenSend(Player player, boolean includeBiomeData) {
         Season season = SeasonsAPI.getInstance().getSeason(player.getWorld());
-        int subSeasonPhase = getCurrentSubSeason(SeasonsAPI.getInstance().getDate(player.getWorld()), player.getWorld().getFullTime()).getPhase();
-        if (season != currentSeason || subSeasonPhase != currentSubSeasonPhase || override) {
+        int subSeasonPhase = getCurrentSubSeason(SeasonsAPI.getInstance().getDate(player.getWorld()),
+                player.getWorld().getFullTime()).getPhase();
+        if (season != currentSeason || subSeasonPhase != currentSubSeasonPhase) {
             currentSeason = season;
             currentSubSeasonPhase = subSeasonPhase;
-            sendData(player);
+            BukkitNetworkSender.sendPacketServer(player, new Networking.GameplaySyncPacket(currentSeason.name(),
+                    currentSubSeasonPhase, RealisticSeasons.getInstance().getSettings().subSeasonsEnabled));
+
+        } else if (includeBiomeData) {
+            BukkitNetworkSender.sendPacketServer(player,
+                    new Networking.InitialSyncPacket(SeasonalLods.biomeJson, currentSeason.name(),
+                            currentSubSeasonPhase, RealisticSeasons.getInstance().getSettings().subSeasonsEnabled));
         }
     }
 
@@ -41,7 +42,6 @@ public class ListenerStuff implements Listener {
     public void onPlayerJoin(PlayerRegisterChannelEvent event) {
         Player player = event.getPlayer();
         updateDataThenSend(player, true);
-        // BukkitNetworkSender.sendPacketServer(player, new Networking.ReloadPacket());
     }
 
     SubSeason getCurrentSubSeason(Date date, long fullTime) {
@@ -64,12 +64,24 @@ public class ListenerStuff implements Listener {
         }
     }
 
+    private void scheduleSyncUpdate(World world) {
+        Bukkit.getScheduler().runTaskLater(
+                SeasonalLods.getPlugin(SeasonalLods.class),
+                () -> {
+                    for (Player player : world.getPlayers()) {
+                        updateDataThenSend(player, false);
+                    }
+                },
+                1L);
+    }
+
     @EventHandler
-    public void onTick(ServerTickStartEvent event) {
-        for (World world : RealisticSeasons.getInstance().getServer().getWorlds()) {
-            for (Player player : world.getPlayers()) {
-                updateDataThenSend(player, false);
-            }
-        }
+    public void onSeasonChange(SeasonChangeEvent e) {
+        scheduleSyncUpdate(e.getWorld());
+    }
+
+    @EventHandler
+    public void onDayChange(DayChangeEvent e) {
+        scheduleSyncUpdate(e.getWorld());
     }
 }
